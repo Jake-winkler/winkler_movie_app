@@ -2,6 +2,94 @@ const global = {
     currentPage: window.location.pathname
 }
 
+async function displayPopularMovies() {
+    const { results } = await fetchAPIData('movie/popular');
+
+results .forEach(movie => {
+    const div = document.createElement('div');
+    div.classList.add('card');
+
+    div.innerHTML = `
+
+          <a href="movie-details.html?id=${movie.id}">
+         ${
+            movie.poster_path
+                ?`<img
+              src="https://image.tmdb.org/t/p/w500${movie.poster_path}"
+              class="card-img-top"
+              alt="${movie.title}"
+            />`
+                : `   <img
+              src="images/no-image.jpg"
+              class="card-img-top"
+              alt="Movie Title"
+            />`
+         }
+          </a>
+          <div class="card-body">
+            <h5 class="card-title">${movie.title}</h5>
+            <p class="card-text">
+              <small class="text-muted">Release: ${movie.release_date}  </small>
+            </p>
+          </div>
+    `;
+
+    document.querySelector('#popular-movies').
+    appendChild(div);
+});
+}
+
+async function displayPopularTvShows() {
+    const { results } = await fetchAPIData('tv/popular');
+
+    results.forEach(show => {
+        const div = document.createElement('div');
+        div.classList.add('card');
+
+        div.innerHTML= `
+
+          <a href="tv-details.html?id=${show.id}">
+          ${
+            show.poster_path
+                ?` <img
+              src="https://image.tmdb.org/t/p/w500${show.poster_path}"
+              class="card-img-top"
+              alt="${show.name}"
+            />`
+            : `<img
+              src="images/no-image.jpg"
+              class="card-img-top"
+              alt="Show Title"
+            />`
+          }
+          </a>
+          </a>
+          <div class="card-body">
+            <h5 class="card-title">${show.name}</h5>
+            <p class="card-text">
+              <small class="text-muted">Aired: ${show.first_air_date}</small>
+            </p>
+          </div>
+        `
+
+        document.querySelector('#popular-shows').
+        appendChild(div);
+    })
+}
+
+// Fetch data from TMDB API 
+//normally you should not put the API Key in like this.  Normally should be in backend server that makes the request then you would make request to your backend server 
+async function fetchAPIData(endpoint){
+    const API_KEY = 'c533f9607afd6d693f852dee0e2ee673';
+    const API_URL = 'https://api.themoviedb.org/3/';
+
+    const response = await fetch(`${API_URL}${endpoint}?api_key=${API_KEY}&language=en-US&page=1`);
+
+    const data = await response.json();
+
+    return data;
+}
+
 // Highlight Active Link: 
 
 function highlightActiveLink(){
@@ -10,7 +98,7 @@ function highlightActiveLink(){
         if(link.getAttribute('href') === global.currentPage){
             link.classList.add('active');
         }
-    })
+    });
 }
 
 //Init app
@@ -18,9 +106,11 @@ function highlightActiveLink(){
 function init() {
     switch(global.currentPage){
         case '/winkler_movie_app/index.html':
+            displayPopularMovies();
             console.log('Home');
         break;
         case '/winkler_movie_app/shows.html': 
+            displayPopularTvShows();
             console.log('shows');
         break;
         case '/winkler_movie_app/movie-details.html':
@@ -34,7 +124,7 @@ function init() {
         break
     }
 
-    highlightActiveLink();
+    highlightActiveLink();  
 }
 
 
